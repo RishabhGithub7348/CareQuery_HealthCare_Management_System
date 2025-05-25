@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import { useAuth } from "@/lib/AuthContext";
 import AppointmentForm from "@/components/AppointmentForm";
 import FormDialog from "@/components/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -192,7 +192,7 @@ export default function PatientDetails({
       setLoading(false);
     }
   };
-
+  const {user} = useAuth()
   const handleCancelAppointment = async () => {
     if (!selectedAppointment) return;
     setLoading(true);
@@ -200,7 +200,7 @@ export default function PatientDetails({
       await updateAppointment(
         selectedAppointment.id,
         { status: "Cancelled" },
-        "user-id-placeholder"
+        user? user?.id : ""
       );
       toast.success("Appointment cancelled successfully", {
         position: "top-right",
