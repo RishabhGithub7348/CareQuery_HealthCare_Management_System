@@ -91,7 +91,11 @@ export default function AppointmentForm({
           setPatients(patientList);
         }
       } catch (error: any) {
-        toast.error("Failed to load data");
+        toast.error("Failed to load data", {
+          position: "top-right",
+          duration: 3000,
+          className: "bg-red-500 text-white",
+        });
         console.log(error);
       }
     }
@@ -119,7 +123,11 @@ export default function AppointmentForm({
           },
           user ? user.id : ""
         );
-        toast.success("Appointment rescheduled successfully");
+        toast.success("Appointment rescheduled successfully", {
+          position: "top-right",
+          duration: 3000,
+          className: "bg-green-500 text-white",
+        });
       } else {
         // Create new appointment
         await createAppointment(
@@ -133,49 +141,67 @@ export default function AppointmentForm({
           },
           user ? user.id : ""
         );
-        toast.success("Appointment booked successfully");
+        toast.success("Appointment booked successfully", {
+          position: "top-right",
+          duration: 3000,
+          className: "bg-green-500 text-white",
+        });
       }
       onSubmit();
     } catch (error: any) {
-      toast.error(error.message || "Failed to save appointment");
+      toast.error(error.message || "Failed to save appointment", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-red-500 text-white",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       {isDashboard && (
-        <div>
-          <Label htmlFor="patient">Patient</Label>
+        <div className="space-y-2">
+          <Label htmlFor="patient" className="text-gray-700 font-medium">
+            Patient
+          </Label>
           <Select
             value={formData.patient_id}
             onValueChange={(value) =>
               setFormData({ ...formData, patient_id: value })
             }
           >
-            <SelectTrigger id="patient">
+            <SelectTrigger
+              id="patient"
+              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+            >
               <SelectValue placeholder="Select a patient" />
             </SelectTrigger>
             <SelectContent>
               {patients.map((patient) => (
                 <SelectItem key={patient.id} value={patient.id}>
-                  {patient.name}
+                  {patient.name} (ID: {patient.medical_id})
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       )}
-      <div>
-        <Label htmlFor="doctor">Doctor</Label>
+      <div className="space-y-2">
+        <Label htmlFor="doctor" className="text-gray-700 font-medium">
+          Doctor
+        </Label>
         <Select
           value={formData.doctor_id}
           onValueChange={(value) =>
             setFormData({ ...formData, doctor_id: value })
           }
         >
-          <SelectTrigger id="doctor">
+          <SelectTrigger
+            id="doctor"
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+          >
             <SelectValue placeholder="Select a doctor" />
           </SelectTrigger>
           <SelectContent>
@@ -187,15 +213,17 @@ export default function AppointmentForm({
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <Label htmlFor="date">Date</Label>
+      <div className="space-y-2">
+        <Label htmlFor="date" className="text-gray-700 font-medium">
+          Date
+        </Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-start text-left font-normal"
+              className="w-full justify-start text-left font-normal border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-2 h-5 w-5 text-gray-500" />
               {formData.date
                 ? format(new Date(formData.date), "PPP")
                 : "Pick a date"}
@@ -212,17 +240,25 @@ export default function AppointmentForm({
                 })
               }
               initialFocus
+              disabled={(date) =>
+                date < new Date(new Date().setHours(0, 0, 0, 0))
+              }
             />
           </PopoverContent>
         </Popover>
       </div>
-      <div>
-        <Label htmlFor="time">Time</Label>
+      <div className="space-y-2">
+        <Label htmlFor="time" className="text-gray-700 font-medium">
+          Time
+        </Label>
         <Select
           value={formData.time}
           onValueChange={(value) => setFormData({ ...formData, time: value })}
         >
-          <SelectTrigger id="time">
+          <SelectTrigger
+            id="time"
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+          >
             <SelectValue placeholder="Select a time" />
           </SelectTrigger>
           <SelectContent>
@@ -234,22 +270,25 @@ export default function AppointmentForm({
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <Label htmlFor="reason">Reason</Label>
+      <div className="space-y-2">
+        <Label htmlFor="reason" className="text-gray-700 font-medium">
+          Reason
+        </Label>
         <Input
           id="reason"
           value={formData.reason}
           onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
           placeholder="Reason for appointment"
+          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
         />
       </div>
       <Button
         type="submit"
-        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
         disabled={loading}
       >
         {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin" />
         ) : appointment?.id ? (
           "Reschedule Appointment"
         ) : (

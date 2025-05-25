@@ -25,6 +25,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
 
 export default function SQLPage() {
   const router = useRouter();
@@ -46,7 +47,12 @@ export default function SQLPage() {
   useEffect(() => {
     if (!user || user.role !== "Admin") {
       toast.error(
-        "Only Admin has privilege to access this, please login by Admin"
+        "Only Admin has privilege to access this, please login by Admin",
+        {
+          position: "top-right",
+          duration: 3000,
+          className: "bg-red-500 text-white",
+        }
       );
       router.push("/auth");
     }
@@ -108,15 +114,27 @@ export default function SQLPage() {
         });
         setColumns(result.fields.map((field: any) => field.name));
         setResults(formattedRows);
-        toast.success("Query executed successfully");
+        toast.success("Query executed successfully", {
+          position: "top-right",
+          duration: 3000,
+          className: "bg-green-500 text-white",
+        });
       } else {
         setColumns([]);
         setResults([]);
-        toast.success("Query executed successfully (no results)");
+        toast.success("Query executed successfully (no results)", {
+          position: "top-right",
+          duration: 3000,
+          className: "bg-green-500 text-white",
+        });
       }
     } catch (err: any) {
       setError(err.message || "Failed to execute query");
-      toast.error(err.message || "Failed to execute query");
+      toast.error(err.message || "Failed to execute query", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-red-500 text-white",
+      });
     } finally {
       setLoading(false);
     }
@@ -124,7 +142,11 @@ export default function SQLPage() {
 
   const handleGenerateQuery = () => {
     if (!table) {
-      toast.error("Please select a table");
+      toast.error("Please select a table", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-red-500 text-white",
+      });
       return;
     }
     let generatedQuery = `SELECT * FROM ${table}`;
@@ -142,7 +164,11 @@ export default function SQLPage() {
 
   const handleDownloadCSV = () => {
     if (!results.length || !columns.length) {
-      toast.error("No results to download");
+      toast.error("No results to download", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-red-500 text-white",
+      });
       return;
     }
     const csvRows = [
@@ -195,202 +221,249 @@ export default function SQLPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-gray-100 p-6">
-      <Button
-        variant="outline"
-        onClick={() => router.push("/dashboard")}
-        className="mb-4"
-      >
-        Back to Dashboard
-      </Button>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-blue-600 mb-4">Raw SQL Query</h2>
-        <div className="space-y-4">
-          <Input
-            ref={queryInputRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Enter or generate your SQL query"
-            className="font-mono"
-          />
-          <div className="flex space-x-2">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
+      <div className="flex-1 p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
             <Button
-              onClick={handleExecute}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Execute Query"
-              )}
-            </Button>
-            <Button
-              onClick={handleGenerateQuery}
               variant="outline"
-              disabled={loading}
+              onClick={() => router.push("/dashboard")}
+              className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
             >
-              Generate Query
+              Back to Dashboard
             </Button>
-            {results.length > 0 && (
-              <Button
-                onClick={handleDownloadCSV}
-                variant="outline"
-                disabled={loading}
-              >
-                Download as CSV
-              </Button>
-            )}
           </div>
-          <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold">Table Selection</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={clearTable}
-                  disabled={loading}
-                >
-                  Clear
-                </Button>
+          <div className="bg-white p-8 rounded-xl shadow-md">
+            <h2 className="text-3xl font-bold text-blue-700 mb-6 tracking-tight">
+              SQL Query Interface
+            </h2>
+            <div className="space-y-6">
+              <div className="flex flex-col gap-4">
+                <Input
+                  ref={queryInputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Enter or generate your SQL query"
+                  className="font-mono text-sm border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                />
+                <div className="flex space-x-3">
+                  <Button
+                    onClick={handleExecute}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      "Execute Query"
+                    )}
+                  </Button>
+                  <Button
+                    onClick={handleGenerateQuery}
+                    variant="outline"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                    disabled={loading}
+                  >
+                    Generate Query
+                  </Button>
+                  {results.length > 0 && (
+                    <Button
+                      onClick={handleDownloadCSV}
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                      disabled={loading}
+                    >
+                      Download as CSV
+                    </Button>
+                  )}
+                </div>
               </div>
-              <Select value={table} onValueChange={setTable}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a table" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="patients">Patients</SelectItem>
-                  <SelectItem value="appointments">Appointments</SelectItem>
-                  <SelectItem value="users">Users</SelectItem>
-                </SelectContent>
-              </Select>
-              {table && (
-                <Button
-                  onClick={() => setQuery(`SELECT * FROM ${table}`)}
-                  variant="outline"
-                  className="mt-2"
-                >
-                  Get All Columns
-                </Button>
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Table Selection
+                    </h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearTable}
+                      className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                      disabled={loading}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                  <Select value={table} onValueChange={setTable}>
+                    <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200">
+                      <SelectValue placeholder="Select a table" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="patients">Patients</SelectItem>
+                      <SelectItem value="appointments">Appointments</SelectItem>
+                      <SelectItem value="users">Users</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {table && (
+                    <Button
+                      onClick={() => setQuery(`SELECT * FROM ${table}`)}
+                      variant="outline"
+                      className="mt-3 border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                    >
+                      Get All Columns
+                    </Button>
+                  )}
+                </div>
+                {table && (
+                  <div className="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Filter By
+                      </h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={clearFilter}
+                        className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                        disabled={loading}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <Select
+                        value={filterColumn}
+                        onValueChange={setFilterColumn}
+                      >
+                        <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200">
+                          <SelectValue placeholder="Select column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tableColumns[table].map((col) => (
+                            <SelectItem key={col} value={col}>
+                              {col}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={filterOperator}
+                        onValueChange={setFilterOperator}
+                      >
+                        <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200">
+                          <SelectValue placeholder="Select operator" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {operators.map((op) => (
+                            <SelectItem key={op} value={op}>
+                              {op}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        value={filterValue}
+                        onChange={(e) => setFilterValue(e.target.value)}
+                        placeholder="Enter value"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                      />
+                    </div>
+                  </div>
+                )}
+                {table && (
+                  <div className="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Sort By
+                      </h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={clearSort}
+                        className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                        disabled={loading}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <Select
+                        value={sortColumn}
+                        onValueChange={setSortColumn}
+                      >
+                        <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200">
+                          <SelectValue placeholder="Select column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tableColumns[table].map((col) => (
+                            <SelectItem key={col} value={col}>
+                              {col}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select value={sortOrder} onValueChange={setSortOrder}>
+                        <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200">
+                          <SelectValue placeholder="Select order" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ASC">Ascending</SelectItem>
+                          <SelectItem value="DESC">Descending</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {error && (
+                <p className="text-red-500 text-sm font-medium">{error}</p>
+              )}
+              {columns.length > 0 && (
+                <div className="border rounded-lg overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        {columns.map((col) => (
+                          <TableHead
+                            key={col}
+                            className="font-semibold text-gray-700 whitespace-nowrap"
+                          >
+                            {col.toUpperCase()}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {results.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className="text-center py-4 text-gray-500"
+                          >
+                            No results found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        results.map((row, index) => (
+                          <TableRow
+                            key={index}
+                            className="hover:bg-gray-50 transition-colors duration-200"
+                          >
+                            {columns.map((col) => (
+                              <TableCell key={col} className="whitespace-nowrap">
+                                {row[col] ?? "NULL"}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </div>
-            {table && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-semibold">Filter By</h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearFilter}
-                    disabled={loading}
-                  >
-                    Clear
-                  </Button>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <Select value={filterColumn} onValueChange={setFilterColumn}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Column" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tableColumns[table].map((col) => (
-                        <SelectItem key={col} value={col}>
-                          {col}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={filterOperator}
-                    onValueChange={setFilterOperator}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Operator" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {operators.map((op) => (
-                        <SelectItem key={op} value={op}>
-                          {op}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    value={filterValue}
-                    onChange={(e) => setFilterValue(e.target.value)}
-                    placeholder="Value"
-                  />
-                </div>
-              </div>
-            )}
-            {table && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-semibold">Sort By</h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearSort}
-                    disabled={loading}
-                  >
-                    Clear
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Select value={sortColumn} onValueChange={setSortColumn}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Column" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tableColumns[table].map((col) => (
-                        <SelectItem key={col} value={col}>
-                          {col}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={sortOrder} onValueChange={setSortOrder}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Order" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ASC">Ascending</SelectItem>
-                      <SelectItem value="DESC">Descending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          {columns.length > 0 && (
-            <div className="max-w-[75vw] overflow-y-auto overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {columns.map((col) => (
-                      <TableHead
-                        key={col}
-                        className="sticky top-0 bg-white z-10"
-                      >
-                        {col.toUpperCase()}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {results.map((row, index) => (
-                    <TableRow key={index}>
-                      {columns.map((col) => (
-                        <TableCell key={col}>{row[col] ?? "NULL"}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
         </div>
       </div>
     </div>

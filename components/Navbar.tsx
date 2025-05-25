@@ -12,27 +12,40 @@ export default function Navbar() {
   const showSignup = ["/"].includes(pathname);
 
   return (
-    <nav className="bg-blue-600 text-white p-4 sticky top-0 z-10">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <Link href={"/"}>
-            <Image
-              src="/logo.png"
-              alt="CareQuery Logo"
-              width={128}
-              height={128}
-            />
+    <nav className="bg-gradient-to-r from-blue-700 to-cyan-700 text-white py-4 sticky top-0 z-20 shadow-lg">
+      <div className="container mx-auto px-6 flex justify-between items-center">
+        <div className="flex items-center space-x-3">
+          <Link href="/">
+            <div className="relative w-12 h-12">
+              <Image
+                src="/logo.png"
+                alt="CareQuery Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+          </Link>
+          <Link href="/">
+            <span className="text-xl font-semibold tracking-tight hover:text-cyan-100 transition-colors duration-200">
+              CareQuery
+            </span>
           </Link>
         </div>
         {showSignup && (
-          <div className="space-x-4">
+          <div className="flex items-center space-x-4">
             <Link href="/auth">
-              <Button className="text-white cursor-pointer border-white hover:bg-blue-700">
-                {user ? user?.username : "Sign-up"}
+              <Button
+                variant="outline"
+                className="text-blue-700 hover:bg-gray-100 border-white hover:bg-cyan-600 hover:border-cyan-600 hover:text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 ease-in-out"
+              >
+                {user ? user.username : "Sign Up"}
               </Button>
             </Link>
             <Link href="/auth">
-              <Button className="bg-white cursor-pointer text-blue-600 hover:bg-gray-200">
+              <Button
+                className="bg-white text-blue-700 hover:bg-gray-100 hover:text-blue-800 font-medium px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+              >
                 Get Started
               </Button>
             </Link>

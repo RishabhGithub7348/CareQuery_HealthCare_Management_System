@@ -33,6 +33,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
 
 export default function PatientDetails({
   params,
@@ -124,9 +125,17 @@ export default function PatientDetails({
       a.download = `${patient?.name}_summary.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("PDF downloaded successfully");
+      toast.success("PDF downloaded successfully", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-green-500 text-white",
+      });
     } else {
-      toast.error("Failed to generate PDF");
+      toast.error("Failed to generate PDF", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-red-500 text-white",
+      });
     }
   };
 
@@ -162,13 +171,22 @@ export default function PatientDetails({
         templateParams,
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
-      toast.success("Patient summary email sent successfully");
+      toast.success("Patient summary email sent successfully", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-green-500 text-white",
+      });
     } catch (error: any) {
       console.error("EmailJS Error:", error);
       toast.error(
         error.text ||
           error.message ||
-          "Failed to send email. Check EmailJS credentials and template."
+          "Failed to send email. Check EmailJS credentials and template.",
+        {
+          position: "top-right",
+          duration: 3000,
+          className: "bg-red-500 text-white",
+        }
       );
     } finally {
       setLoading(false);
@@ -184,11 +202,19 @@ export default function PatientDetails({
         { status: "Cancelled" },
         "user-id-placeholder"
       );
-      toast.success("Appointment cancelled successfully");
+      toast.success("Appointment cancelled successfully", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-green-500 text-white",
+      });
       setCancelDialogOpen(false);
       fetchData();
     } catch (error: any) {
-      toast.error(error.message || "Failed to cancel appointment");
+      toast.error(error.message || "Failed to cancel appointment", {
+        position: "top-right",
+        duration: 3000,
+        className: "bg-red-500 text-white",
+      });
     } finally {
       setLoading(false);
     }
@@ -196,180 +222,257 @@ export default function PatientDetails({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex justify-center items-center">
+          <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+        </div>
       </div>
     );
   }
 
-  if (!patient) return <div>Patient not found</div>;
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-gray-100 p-6">
-      <Button
-        variant="outline"
-        onClick={() => router.push("/dashboard?tab=patients")}
-        className="mb-4"
-      >
-        Back to Patients
-      </Button>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-blue-600 mb-4">{patient.name}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p>
-              <strong>Medical ID:</strong> {patient.medical_id}
-            </p>
-            <p>
-              <strong>Date of Birth:</strong>{" "}
-              {format(new Date(patient.dob), "PPP")}
-            </p>
-            <p>
-              <strong>Medical Condition:</strong>{" "}
-              {patient.medical_condition || "N/A"}
-            </p>
-            <p>
-              <strong>Email:</strong> {patient.email || "N/A"}
-            </p>
-            <p>
-              <strong>Contact:</strong> {patient.contact || "N/A"}
-            </p>
-            <p>
-              <strong>Address:</strong> {patient.address || "N/A"}
-            </p>
-          </div>
-          <div className="flex space-x-2">
+  if (!patient) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex justify-center items-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold text-gray-700">
+              Patient not found
+            </h2>
             <Button
-              onClick={handleDownloadPDF}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+              variant="outline"
+              onClick={() => router.push("/dashboard?tab=patients")}
+              className="mt-4 border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
             >
-              Download PDF
-            </Button>
-            <Button
-              onClick={sendEmail}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Send Email Summary"
-              )}
+              Back to Patients
             </Button>
           </div>
         </div>
-        <h3 className="text-lg font-semibold mt-6">Appointments</h3>
-        <Button
-          onClick={() => setAppointmentDialogOpen(true)}
-          className="my-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-        >
-          Book New Appointment
-        </Button>
-        <FormDialog
-          open={appointmentDialogOpen}
-          onOpenChange={setAppointmentDialogOpen}
-          title="Book Appointment"
-          formComponent={
-            <AppointmentForm
-              patientId={patient.id}
-              onSubmit={() => {
-                setAppointmentDialogOpen(false);
-                fetchData();
-              }}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
+      <div className="flex-1 p-6 md:p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <Button
+              variant="outline"
+              onClick={() => router.push("/dashboard?tab=patients")}
+              className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            >
+              Back to Patients
+            </Button>
+          </div>
+          <div className="bg-white p-8 rounded-xl shadow-md">
+            <h2 className="text-3xl font-bold text-blue-700 mb-6 tracking-tight">
+              {patient.name}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <p className="text-gray-700">
+                  <span className="font-semibold">Medical ID:</span>{" "}
+                  {patient.medical_id}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Date of Birth:</span>{" "}
+                  {format(new Date(patient.dob), "PPP")}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Medical Condition:</span>{" "}
+                  {patient.medical_condition || "N/A"}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Email:</span>{" "}
+                  {patient.email || "N/A"}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Contact:</span>{" "}
+                  {patient.contact || "N/A"}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Address:</span>{" "}
+                  {patient.address || "N/A"}
+                </p>
+              </div>
+              <div className="flex space-x-3 md:justify-end">
+                <Button
+                  onClick={handleDownloadPDF}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
+                  Download PDF
+                </Button>
+                <Button
+                  onClick={sendEmail}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    "Send Email Summary"
+                  )}
+                </Button>
+              </div>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
+              Appointments
+            </h3>
+            <Button
+              onClick={() => setAppointmentDialogOpen(true)}
+              className="mb-6 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+            >
+              Book New Appointment
+            </Button>
+            <FormDialog
+              open={appointmentDialogOpen}
+              onOpenChange={setAppointmentDialogOpen}
+              title="Book Appointment"
+              formComponent={
+                <AppointmentForm
+                  patientId={patient.id}
+                  onSubmit={() => {
+                    setAppointmentDialogOpen(false);
+                    fetchData();
+                  }}
+                />
+              }
             />
-          }
-        />
-        <FormDialog
-          open={rescheduleDialogOpen}
-          onOpenChange={setRescheduleDialogOpen}
-          title="Reschedule Appointment"
-          formComponent={
-            selectedAppointment && (
-              <AppointmentForm
-                appointment={selectedAppointment}
-                patientId={patient.id}
-                onSubmit={() => {
-                  setRescheduleDialogOpen(false);
-                  fetchData();
-                }}
-              />
-            )
-          }
-        />
-        <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Cancel Appointment</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to cancel this appointment? This action
-                cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setCancelDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleCancelAppointment}
-                disabled={loading}
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Confirm"
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead>Doctor</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {appointments.map((appt) => (
-              <TableRow key={appt.id}>
-                <TableCell>{format(new Date(appt.date), "PPP")}</TableCell>
-                <TableCell>{appt.time}</TableCell>
-                <TableCell>{appt.doctor_name || appt.doctor_id}</TableCell>
-                <TableCell>{appt.reason || "N/A"}</TableCell>
-                <TableCell>{appt.status}</TableCell>
-                <TableCell>
+            <FormDialog
+              open={rescheduleDialogOpen}
+              onOpenChange={setRescheduleDialogOpen}
+              title="Reschedule Appointment"
+              formComponent={
+                selectedAppointment && (
+                  <AppointmentForm
+                    appointment={selectedAppointment}
+                    patientId={patient.id}
+                    onSubmit={() => {
+                      setRescheduleDialogOpen(false);
+                      fetchData();
+                    }}
+                  />
+                )
+              }
+            />
+            <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Cancel Appointment</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to cancel this appointment? This
+                    action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setSelectedAppointment(appt);
-                      setRescheduleDialogOpen(true);
-                    }}
-                  >
-                    Reschedule
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      setSelectedAppointment(appt);
-                      setCancelDialogOpen(true);
-                    }}
-                    className="ml-2"
+                    onClick={() => setCancelDialogOpen(false)}
+                    className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
                   >
                     Cancel
                   </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  <Button
+                    variant="destructive"
+                    onClick={handleCancelAppointment}
+                    disabled={loading}
+                    className="bg-red-500 hover:bg-red-600 text-white transition-colors duration-200"
+                  >
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      "Confirm"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="font-semibold text-gray-700">
+                      Date
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700">
+                      Time
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700">
+                      Doctor
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700">
+                      Reason
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700">
+                      Status
+                    </TableHead>
+                    <TableHead className="font-semibold text-gray-700">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {appointments.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4 text-gray-500">
+                        No appointments found.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    appointments.map((appt) => (
+                      <TableRow key={appt.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <TableCell>{format(new Date(appt.date), "PPP")}</TableCell>
+                        <TableCell>{appt.time}</TableCell>
+                        <TableCell>{appt.doctor_name || appt.doctor_id}</TableCell>
+                        <TableCell>{appt.reason || "N/A"}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              appt.status === "Scheduled"
+                                ? "bg-blue-100 text-blue-800"
+                                : appt.status === "Cancelled"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {appt.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedAppointment(appt);
+                              setRescheduleDialogOpen(true);
+                            }}
+                            className="border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                          >
+                            Reschedule
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedAppointment(appt);
+                              setCancelDialogOpen(true);
+                            }}
+                            className="ml-2 bg-red-500 hover:bg-red-600 text-white transition-colors duration-200"
+                          >
+                            Cancel
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

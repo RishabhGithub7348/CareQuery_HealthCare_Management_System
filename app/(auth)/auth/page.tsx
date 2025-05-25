@@ -23,8 +23,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [role, setRole] = useState<any>("Staff");
+  const [role, setRole] = useState<"Staff" | "Admin">("Staff");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -38,7 +37,7 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         const response = await login(username, password);
-        console.log("Login response:", response); // Debug log
+        console.log("Login response:", response);
         router.push("/dashboard");
       } else {
         const regResponse = await registerUser({
@@ -48,93 +47,104 @@ export default function AuthPage() {
           password,
           role,
         });
-        console.log("Register response:", regResponse); // Debug log
+        console.log("Register response:", regResponse);
         await login(username, password);
         router.push("/dashboard");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error("Auth error:", err); // Debug log
+      console.error("Auth error:", err);
       setError(err.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleRoleChange = (value: string) => {
+    if (value === "Staff" || value === "Admin") {
+      setRole(value);
+    }
+  };
+
   useEffect(() => {
     import("@/lib/db").then(({ initDB }) => initDB(true)).catch(console.error);
   }, []);
 
   return (
-    <div className=" flex flex-col overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-      <div className="-mt-2 h-screen overflow-hidden flex flex-col md:flex-row">
+      <div className="flex-1 flex flex-col md:flex-row">
         {/* Left Side: Image with Gradient Overlay */}
-        <div className="md:w-1/2 relative">
+        <div className="md:w-1/2 relative hidden md:block">
           <Image
             src="/img-login.svg"
             alt="Doctor registering a patient"
-            height={500}
-            width={500}
-            className="object-cover m-auto justify-center mt-[20%]"
+            fill
+            className="object-cover"
+            priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-600/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-700/70 to-cyan-700/30" />
         </div>
         {/* Right Side: Form with Gradient Background */}
-        <div className="md:w-1/2 -mt-5 flex items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-cyan-50">
-          <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-blue-600 mb-6">
+        <div className="md:w-1/2 flex items-center justify-center p-6 md:p-12 bg-gradient-to-br from-blue-50 via-cyan-50 to-white">
+          <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+            <h2 className="text-3xl font-bold text-blue-700 mb-6 tracking-tight">
               {isLogin ? "Login to CareQuery" : "Sign Up for CareQuery"}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
                 <>
                   <div>
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name" className="text-gray-700 font-medium">Full Name</Label>
                     <Input
                       id="name"
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required={!isLogin}
+                      className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-gray-700 font-medium">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required={!isLogin}
+                      className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                     />
                   </div>
                 </>
               )}
               <div>
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username" className="text-gray-700 font-medium">Username</Label>
                 <Input
                   id="username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
+                  className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                 />
               </div>
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                 />
               </div>
               {!isLogin && (
                 <div>
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger>
+                  <Label htmlFor="role" className="text-gray-700 font-medium">Role</Label>
+                  <Select value={role} onValueChange={handleRoleChange}>
+                    <SelectTrigger className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200">
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
@@ -144,10 +154,10 @@ export default function AuthPage() {
                   </Select>
                 </div>
               )}
-              {error && <p className="text-red-500 text-sm">{error}</p>}
+              {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
                 disabled={loading}
               >
                 {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
@@ -155,7 +165,7 @@ export default function AuthPage() {
             </form>
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="mt-4 text-sm text-blue-600 hover:underline"
+              className="mt-5 w-full text-sm text-blue-600 cursor-pointer font-medium hover:text-blue-800 hover:underline transition-colors duration-200"
             >
               {isLogin
                 ? "Need an account? Sign Up"
