@@ -4,6 +4,17 @@
 
 CareQuery is a healthcare management web application built with Next.js, TypeScript, and Tailwind CSS. It allows users to manage patients, book appointments, execute raw SQL queries (admin-only), and send email summaries. The app uses PGlite (in-memory PostgreSQL) for data storage, `BroadcastChannel` for cross-tab synchronization, EmailJS for email notifications, and Shadcn UI for a polished interface.
 
+## Documentary Video
+
+To learn more about CareQuery and see a walkthrough of its features, watch documentary video:
+
+### Watch the CareQuery App Documentary Video
+
+[![alt text](https://github.com/user-attachments/assets/d83a0fe6-faea-4a7f-b5fe-88b964da07f8)](https://youtu.be/zuCBnCL32Mw)
+
+## Deployed on Render :  [CareQuery](https://carequery-healthcare-management-system-rb77.onrender.com/)
+
+
 ### Features
 
 - **Dashboard**:
